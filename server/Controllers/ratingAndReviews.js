@@ -10,9 +10,8 @@ exports.createRating=async(req,res)=>{
         const {rating,review,courseId}=req.body;
         //check user enrolledment
         const coursedetails=await Course.findOne({_id:courseId,
-            studentEnrolled:{$elemMatch:{$eq:userId}},
-        },
-        );
+            StudentEnrolled:{$elemMatch:{$eq:userId}},
+        });
         if(!coursedetails){
             return res.status(404).json({
                 success:false,
@@ -57,71 +56,31 @@ exports.createRating=async(req,res)=>{
     }
 }
 //average ratings
-exports.getAveragerating=async(req,res)=>{
+exports.getAverageRating=async(req,res)=>{
     try{
-        //get courseId
-        const {courseId}=req.body.courseId;
-
-        //calculate average rating
+        const {courseId}=req.body;
         const result=await RatingandReviews.aggregate([
-            {
-                $match:{
-                    course:new mongoose.Types.ObjectId(courseId),
-
-                },
-            },
-            {
-                $group:{
-                    _id:null,
-                    averageRating:{$avg:"$rating"},
-
-                }
-            }
-        ])
-        //return rating
+            { $match: { course: new mongoose.Types.ObjectId(courseId) } },
+            { $group: { _id: null, averageRating: { $avg: "$rating" } } }
+        ]);
         if(result.length>0){
-            return res.status(200).json({
-                success:true,
-                message:"got rating",
-                averageRating:result[0].averageRating,
-            })
+            return res.status(200).json({ success:true, averageRating: result[0].averageRating });
         }
-        // if not rating
-        return res.status(200).json({
-                success:true,
-                message:"no ratings found yet",
-                averageRating:0,
-            })
+        return res.status(200).json({ success:true, averageRating: 0 });
     }catch(error){
-         return res.status(500).json({
-            success:false,
-            message:error.message,
-        });
+         return res.status(500).json({ success:false, message:error.message });
     }
 }
 //getall ratings
-exports.getallratings=async(req,res)=>{
+exports.getAllRating=async(req,res)=>{
     try{
-        const allreviews=(await RatingAndReview.find({}))
-                    .sort({rating:"desc"})
-                    .populate({
-                        path:"user",
-                        select:"firstname lastname email image",
-                    })
-                    .populate({
-                        path:"course",
-                        select:"courseName",
-                    })
+        const allreviews=await RatingAndReview.find({})
+                    .sort({rating:-1})
+                    .populate({ path:"user", select:"firstName lastName email image" })
+                    .populate({ path:"course", select:"CourseName" })
                     .exec();
-                return res.status(200).json({
-                    sucess:true,
-                    message:"all reviews fetched succesfully",
-                    data:allreviews,
-                })
+        return res.status(200).json({ success:true, message:"all reviews fetched succesfully", data:allreviews });
     }catch(error){
-        return res.status(500).json({
-            success:false,
-            message:error.message,
-        });
+        return res.status(500).json({ success:false, message:error.message });
     }
 }

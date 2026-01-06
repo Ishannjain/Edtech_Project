@@ -7,13 +7,13 @@ const{
     getAllUserDeatils,
     updateDisplayPicture,
     getEnrolledCourses,
-}=require("../controllers.Profile");
+}=require("../Controllers/Profile");
 
 // profile routes
 
 //delete user account
 
-router.delete("/deleteProfile",deleteAccount);
+router.delete("/deleteProfile",auth,deleteAccount);
 router.put("/updateProfile",auth,updateProfile);
 router.get("/getUserDetails",auth,getAllUserDeatils);
 //get enrolled courses

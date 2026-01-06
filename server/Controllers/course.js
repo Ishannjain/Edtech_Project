@@ -1,9 +1,9 @@
 const Course=require("../Models/Course");
 const Tag=require("../Models/Tags");
 const User=require("../Models/User");
-const {uploadImageToCloudinary}=require("../utils/imageuploader");
+const {uploadImageTocloudinary}=require("../utils/imageuploader");
 //createcourse handler function
-exports.CreateCourse=async(req,res)=>{
+exports.createCourse=async(req,res)=>{
     try{
         //fetch data and file and validation 
         //tag here is ojectid from course
@@ -36,7 +36,7 @@ exports.CreateCourse=async(req,res)=>{
                 });
             }
             //upload image to cloudinary
-            const thumbnailImage=await uploadImageToCloudinary(Thumbnail,process.env.FOLDER_NAME);
+            const thumbnailImage=await uploadImageTocloudinary(Thumbnail,process.env.FOLDER_NAME);
             //create an entry for new course
             const newcourse=await Course.create({
                 CourseName,
@@ -47,21 +47,10 @@ exports.CreateCourse=async(req,res)=>{
                 tag:tagdetails._id,
                 thumbnail:thumbnailImage.secure_url,
             });
-            //to store new course in it instructor details through course id
-            await User.findByIdAndUpdate(
-                {_id:instrcutordetails._id},
-                {
-                    Spush:{
-                        courses:newcourse._id,
-                    }
-                },
-                {new:true},
-            );
-        //updtae tag schema
-        await Tag.findByIdAndUpdate(
-            {_id:tagdetails._id},
-            {new:true},
-        )
+            //store course id on instructor
+            await User.findByIdAndUpdate(instrcutordetails._id, { Course: newcourse._id }, { new: true });
+        // optionally update tag metadata (no-op safe update)
+        await Tag.findByIdAndUpdate(tagdetails._id, {}, { new: true });
         return res.status(200).json({
             success:true,
             message:"Course Created Successfully",
@@ -75,7 +64,7 @@ exports.CreateCourse=async(req,res)=>{
     }
 }
 //getallcourses handler function
-exports.ShowAllCourses=async(req,res)=>{
+exports.getAllCourses=async(req,res)=>{
     try{
         const allcourses=await Course.find({},{CourseName:true,
             prce:true,
@@ -97,21 +86,17 @@ exports.ShowAllCourses=async(req,res)=>{
     }
 }
 //getcoursedetails
-exports.getCourseDetails=async(req,res)=>{
+exports.getAllDetails=async(req,res)=>{
     try{
         //get id
         const {courseId}=req.body;
         //find coursedetails
-        const coursedetails=await Course.find({_id:courseId}).populate({
-            path:"instructor",
-            path:"additionlDetails",
-        }
-        ).populate("category").populate("ratingAndReviews").populate({
-            path:"courseContent",
-            populate:{
-                path:"subSection",
-            },
-        }).exec();
+        const coursedetails=await Course.findById(courseId)
+            .populate({ path: "instructor", populate: { path: "additionalDetails" } })
+            .populate("category")
+            .populate("RatingAndReview")
+            .populate({ path: "CourseContent", populate: { path: "subSection" } })
+            .exec();
         //validation
         if(!coursedetails){
             return res.status(400).json({

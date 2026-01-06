@@ -38,8 +38,9 @@ const CourseSchema=new mongoose.Schema({
         require:true,
     },
     StudentEnrolled:{
-        type:User,
-        
+        type:[mongoose.Schema.Types.ObjectId],
+        ref:"User",
+        default:[],
     },
     category:{
         type:mongoose.Schema.Types.ObjectId,

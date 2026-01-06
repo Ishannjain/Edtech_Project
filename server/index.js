@@ -38,7 +38,7 @@ app.use(
 cloudinaryConnect();
 //routes mounting
 app.use("/api/v1/auth",UserRoutes);
-app.use("/api/v1/profiel",ProfileRoutes);
+app.use("/api/v1/profile",ProfileRoutes);
 app.use("/api/v1/course",CourseRoutes);
 app.use("/api/v1/payment",PaymentsRoutes);
 

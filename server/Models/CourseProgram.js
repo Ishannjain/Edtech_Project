@@ -1,5 +1,7 @@
 const mongoose=require("mongoose");
+
 const CourseProgramSchema=new mongoose.Schema({
+
     courseID:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Course",

@@ -6,11 +6,11 @@ const router=express.Router();
 //course controllers import
 const{createCourse,getAllCourses,getAllDetails}=require("../Controllers/course");
 //catgoriescontrollers import
-const {showAllCategories,createCategory,categoryPageDetails}=require("../controllers/Category");
+const {showAllCategories,createCategory,categoryPageDetails}=require("../Controllers/Category");
 //sections controllers import
 const {createSection,updateSection,deleteSection}=require("../Controllers/section");
 //subsection controllers import
-const {createSubsection,updateSubSection,deleteSubSection}=require("../Controllers/subsection");
+const {createSubsection,updateSubsection,deleteSubsection}=require("../Controllers/subsection");
 //Rating controllers import
 const {createRating,getAverageRating,getAllRating}=require("../Controllers/ratingAndReviews");
 //import middlewares
@@ -27,13 +27,15 @@ router.post("/updateSection",auth,isInstructor,updateSection);
 //delete a section
 router.post("/deleteSection",auth,isInstructor,deleteSection);
 //edit subsection
-router.post("/updateSubSection",auth,isInstructor,updateSubSection);
 //delete sunsection
-router.post("/deleteSubSection",auth,isInstructor,deleteSubSection);
+//edit subsection
+router.post("/updateSubSection",auth,isInstructor,updateSubsection);
+//delete sunsection
+router.post("/deleteSubSection",auth,isInstructor,deleteSubsection);
 // add a subsection to a section
 router.post("/addSubSection",auth,isInstructor,createSubsection);
 //get all regiestered courses
-router.get("getAllCourse",getAllCourses);
+router.get("/getAllCourse", (req, res, next) => getAllCourses(req, res, next));
 
 
 //Rating and reviews
